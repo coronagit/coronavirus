@@ -1,0 +1,482 @@
+<!-- Copyright(C) Colaberry, Inc - All Rights Reserved
+* Unauthorized copying of this file, via any medium is strictly prohibited
+* Proprietary and confidential
+* Author: Colaberry Inc, April 2020
+-->
+<!--<div class="page page-icons" data-ng-controller="StudentChatgroupCtrl">-->
+
+<script type="text/ng-template" id="editformmodal.html">
+    <div class="modal-header">
+        <div class="col-md-6">
+            <h3 class="modal-title" id="modal-title">{{groupusername}} </h3>
+        </div>
+        <div class="col-md-offset-9">
+            <button ng-click="SendFriendRequest()" class="btn btn-info">Request Friend</button>
+        </div>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <form name="edittag" role="form" class="form-horizontal" novalidate>
+            <section ng-show="nodata" class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row align-items-center nodata">
+                        <span class="nodata-span">
+                            Looks like you havent created your profile yet.<br />
+                            <br />
+                            <a href="#/bio" class="btn btn-primary">Start creating your profile</a>
+                        </span>
+                    </div>
+                </div>
+            </section>
+            <section ng-show="!nodata" class="panel panel-default">
+                <div class="panel-heading">
+                    My Bio
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed table-hover table-responsive" style="width: 50%;margin-bottom: 20px;">
+                        <tr ng-repeat="field in fields">
+                            <td>{{field.CCS_BioCatName}}</td>
+                            <td>{{field.CCS_BioFieldData}}</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+
+
+            <section ng-show="!nodata" class="panel panel-default">
+
+                <div class="panel-body">
+                    <div ng-repeat="field in multiple">
+                        <h3 style="width: 100%;    text-align: center;margin: 0px auto;margin-bottom: 20px;">{{field.CCS_BioCatName}}</h3>
+                        <table class="table table-condensed table-hover table-responsive" style="width: 66%;margin: 0px auto;margin-bottom: 20px;">
+
+                            <tr class="" ng-repeat="value in data">
+                                <td ng-show="filterdata(value.CCS_BioCatID ,field.CCS_BioCatID)" style="width: 100%; text-align: center;margin: 0px auto;margin-bottom: 20px;">{{value.CCS_BioValue}}</td>
+
+                            </tr>
+                            <tr><td></td></tr>
+                        </table>
+
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+    <div class="modal-footer">
+
+        <button class="btn btn-warning" type="button" ng-click="close()">Cancel</button>
+    </div>
+</script>
+
+    <script> 
+        function contentheight() { 
+            var ans = "Content-height: " 
+                + angular.element(document 
+                .getElementById("divMyContent1").clientHeight) 
+                + "px<br>"; 
+            document.getElementById("p1").innerHTML = ans; 
+        }  
+    </script>
+
+<button onclick="contentheight()">
+    Content height of Div
+</button>
+
+<h1 id="p1"></h1>
+
+<div id="divMyContent1" style="background-color:white; color:black; overflow-y: scroll; height:700px; overflow-x: hidden; margin-top:30px;">
+    <div class="row">
+        <div class="col-md-8">
+            <div>
+                <input type="text" class="form-control fa  fa-search" ng-model="querystrquestion"
+                       ng-change="currentPage=0" placeholder="Search..." style="width:450px; margin-left: 20px; display:inline-block;">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary" ng-click="Addquestionpop()" id="addnewquestion">
+                <span class="fa fa-plus"><span style="margin-left:10px;">Ask a New Question</span></span>
+            </button>
+        </div>
+    </div>
+
+    <!--<div ng-repeat="i in (discussions | getFilteredQuestions) | startFrom:currentPage*pageSize | limitTo:pageSize" style="padding:20px; display:none">-->
+    <div ng-repeat="i in filteredjobDetails = (discussions) | getFilteredQuestions : querystrquestion" style="padding:20px;">
+
+        <div class="row">
+            <div class="col-md-8" style="margin-top:20px; font-size:18px; color:black;">
+                <label>{{i.GroupQuestionText}}</label>
+            </div>
+            <!--<div class="col-md-2" style="margin-top:20px;">
+                <span class="label label-success" style="cursor:pointer;" ng-click="MarkAsCorrectAnswer(i.GroupQuestionId,i.GroupId)" ng-show="i.CreatedBy == id && Ismoderator == true && i.IsCorrectAnswer==null "><span class="fa fa-check"></span> Mark Correct Answer</span>
+                <span class="label label-success pull-right" ng-show="i.IsCorrectAnswer==true"><span class="fa fa-check"></span>  Answer</span>
+            </div>-->
+            <!--<div class="col-md-2" style="margin-top:20px;">
+                <span class="btn btn-primary" style="cursor:pointer;" ng-click="Contribute(i.GroupQuestionId,i.GroupId)"><span class="glyphicon glyphicon-thumbs-up"></span>Contribution({{contributes}})</span>
+            </div>-->
+
+
+
+            <div class="col-md-4" style="margin-top:20px; color:black;">
+                <label style="float:right;">{{i.CreatedDt | fromNow}}</label>
+                <span ng-show="i.QuestionVisuval != ''">
+
+                    <!--<a style="color:#007bff;text-decoration:underline" href={{i.QuestionVisuval}} download="img">Download</a>-->
+                    <a class="badge badge-pill badge-primary" download="{{i.QuestionVisuval}}" href={{i.QuestionVisuval}} target="_blank" title="QuestionAttachment"><span class="fa fa-paperclip" style="margin-right:8px;"></span>Attachment</a>
+                </span>
+                <span ng-repeat="m in messages">
+                    <span ng-show="m.QuestionId == i.GroupQuestionId">
+                        <span ng-show="m.Status == 'Unread'">
+                            <!--<span class="badge badge-pill badge-info" ng-click="MessageRead(i.GroupId,i.GroupQuestionId)" style="cursor:pointer; margin-left:8px; float:right">New</span>-->
+                            <span class="badge badge-pill badge-info" style="cursor:pointer; margin-left:8px; float:right">New</span>
+                        </span>
+                    </span>
+                </span>
+            </div>
+        </div>
+
+
+
+        <div class="row" style="padding:25px; border-radius:10px; border:1.3px solid #d6d6d6;">
+            <div class="row">
+                <div class="col-md-1">
+                    <a class="pull-left" href="#">
+                        <img style="height:45px; width:45px; border-radius: 50%; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="{{i.ProfileImage}}" />
+                    </a>
+                </div>
+                <div class="col-md-8" style="margin-top:15px;">
+                    <b>{{i.FirstName}}</b>
+                </div>
+
+                <div class="col-md-3" style="margin-top:15px;">
+                </div>
+            </div>
+            <div style="padding:15px; word-break:break-word; margin-left:25px;">
+
+                <div class="col-md-11">
+                    <!--<div class="col-md-2">
+                        <div style="font-size:40px; color:gray; text-align:center">
+                            <span class='icon-up' data-toggle="tooltip" ng-click="Contribute(i,0,1,$parent.$index)" data-placement="right" title="tooltip text"></span>
+                        </div>
+                        <div style="font-size:24px; color:gray; text-align:center">
+                            <text ng-show="c.GroupQuestionCommentId == commentid">{{contributes}}</text>
+                        </div>
+                        <div style="font-size:40px; color:gray; text-align:center">
+                            <span class='icon-down' data-toggle="tooltip" ng-click="Contribute(i,0,0,$parent.$index)" data-placement="right" title="tooltip text"></span>
+                        </div>
+                    </div>-->
+
+                    <div ng-bind-html="i.GroupQuestionComment" class="container" ng-click="CommentPopup(i)"> </div>
+                </div>
+                <div class="col-md-1" ng-show="i.CreatedBy == id">
+                    <span class="label label-warning" style="cursor:pointer;" data-toggle="modal" data-backdrop="static" data-keyboard="false" ng-click="EditQuestion(i)" data-target="#EditQuestion"><span class="fa fa-edit"> Edit</span></span>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <div class="row" style="padding:10px;">
+            <div class="col-md-7">
+                <!--<div ng-show="i.commenttotal !=0">-->
+                <div>
+                    {{i.commenttotal}} Answers
+
+                    <!--<span ng-repeat="k in subscribers | filter: querystrquestion" ng-show="i.GroupQuestionId == k.GroupQuestionId">-->
+                    <span ng-repeat="k in subscribers" ng-show="i.GroupQuestionId == k.GroupQuestionId">
+                        <span ng-click="ViewUser(k)">
+                            <!--<ng-letter-avatar data="{{ k.Username }}" avatarborder="true" shape="round"></ng-letter-avatar>-->
+                            <img style="height:45px; width:45px; border-radius: 50%; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="{{k.ProfileImage}}" />
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-5">
+
+                <!--<label ng-show="start || (showplusindex_details != $index+1)" ng-click="QuestionExpand($index + 1,i.GroupQuestionId);" style="margin-top:0px;color:dodgerblue"><span>View Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-down"></span></span></label>
+                <label ng-show="!(start || (showplusindex_details != $index+1))" ng-click="QuestionMinmize($index + 1,i.GroupQuestionId);" style="margin-top:0px; color:dodgerblue"><span>View Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-up"></span></span></label>-->
+                <!--<label ng-show="start || (showplusindex_details != $index+1)" ng-mouseover="QuestionExpand($index + 1,i.GroupQuestionId);" style="margin-top:0px;color:dodgerblue"><span>View Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-down"></span></span></label>
+                <label ng-show="!(start || (showplusindex_details != $index+1))" ng-mouseover="QuestionMinmize($index + 1,i.GroupQuestionId);" style="margin-top:0px; color:dodgerblue"><span>Hide Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-up"></span></span></label>-->
+
+                <label ng-show="start || (showplusindex_details != $index+1)" ng-mouseover="QuestionExpand($index + 1,i.GroupQuestionId);" style="margin-top:0px;color:dodgerblue;float:right"><span>View Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-down"></span></span></label>
+
+                <!--<label ng-style="'color':'red'" ng-show="true || !(start || (showplusindex_details != $index+1))<!--" ng-mouseover="QuestionMinmize($index + 1,i.GroupQuestionId);" style="margin-top:0px; color:dodgerblue;float:left"><span>Hide Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-up"></span></span></label>-->
+
+                <label ng-show="!(start || (showplusindex_details != $index+1))" ng-mouseover="QuestionMinmize($index + 1,i.GroupQuestionId);" style="margin-top:0px; color:dodgerblue;float:left"><span>Hide Answers<span style="margin-left:8px;" class="glyphicon glyphicon-chevron-up"></span></span></label>
+
+
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div ng-show="!(start || (showplusindex_details != $index+1))" style="border-top:none; ">
+                <div>
+                    <!--<div ng-repeat="j in filteredjobDetails = (questioninfo) | getFilteredQuestions : querystrquestion" style="padding:20px;">-->
+                    <div ng-repeat="j in questioninfo | filter: querystrquestion" ng-show="(i.GroupId == j.GroupId)">
+
+
+                        <div class="panel-body" style="border:1.3px solid #d6d6d6;">
+                            <div style="background:white; margin-top:20px;">
+                                <div>
+                                    <!--<input type="text" ng-change="myFunc()" ng-model="myValue" />-->
+                                    <textarea id="questioncomment{{$parent.$index+1}}" name="editordata" class="summernote" ng-model="newEntry.questioncomment"></textarea>
+                                    <script type="text/javascript">
+                                        $(document).ready(function () {
+                                            $('.summernote').summernote();
+                                        });
+
+                                    </script>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <button type="button" class="btn btn-primary" data-backdrop="static" data-keyboard="false" ng-disabled="newEntry.$invalid" ng-click="AddComments(j.GroupId,j.GroupQuestionId,$parent.$index+1);"><span class="fa fa-comment" style="margin-right:8px;"></span>  Add Comment</button>
+
+
+
+                                        <!--<div>
+                                            <span class="fa fa-comments" style="margin-Right:5px;"></span><label>Live Chat ({{groupchatpartcipantscount}})</label>
+                                            <span id="livechatcount"></span>
+                                        </div>-->
+                                        <!--<a class="btn btn-primary" href="#/group/{{j.GroupQuestionId}}/chat" role="button" target="_top">Chat</a>-->
+                                        <!--<span data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#openchat" style="text-decoration:none; cursor:pointer;" class="btn btn-primary" ng-click="OpenChat(j.GroupQuestionId)" role="button">chat</span>-->
+                                        <!--<span data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#openchat" style="text-decoration:none; cursor:pointer;" class="btn btn-primary" ng-click="OpenChat(j.GroupQuestionId)" role="button">chat</span>-->
+                                        <!--<button class="btn btn-primary" style="float:right;" ng-click="PusherGroupChat(j.GroupQuestionId,loggeduser,j.GroupQuestionText)">
+                                            Group Chat
+                                        </button>-->
+
+                                        <button class="btn btn-primary" ng-show="j.IsUse == null || j.IsUse == null " style="margin-left:10px;" ng-click="GetGroupChat(j.GroupQuestionId, loggeduser)"
+                                                data-toggle="tooltip" data-placement="top" title="Click here to start a group chat.  It's a faster way to send messages back and forth and you can see when the other person is typing">
+                                            <span class="fa fa-comments" style="margin-right:8px;"></span>  Start Chat
+                                        </button>
+                                        <button class="btn btn-success" ng-show="j.IsUse == 1" style="margin-left:10px;" ng-click="GetGroupChat(j.GroupQuestionId, loggeduser)" data-toggle="tooltip" data-placement="top" title="The are( {{groupchatpartcipantscount}}) people in the chat right now!  Click here to join them">
+                                            <!--<span class="fa fa-comments" style="margin-right:8px;"></span>   Join Chat <span  style="margin-left:8px;">{{groupchatpartcipantscount}}</span>-->
+                                            <span class="fa fa-comments" style="margin-right:8px;"></span>Join Chat({{groupchatpartcipantscount}})
+                                        </button>
+
+                                        <!--<button  class="btn btn-primary" style="float:right;" ng-click="GroupChat(j.GroupQuestionId)">
+                                            chat1
+                                        </button>-->
+                                        <!--<div>
+                                            <div ng-if="livecount == 0">
+                                                <span class="fa fa-video-camera" style="margin-Right:5px;"></span><label>Live Video</label>
+                                            </div>
+                                            <div ng-if="livecount > 0">
+                                                <span class="fa fa-video-camera Blink" style="margin-Right:5px;"></span><label>Live Video ({{livecount}})</label>
+                                            </div>
+                                        </div>-->
+
+                                        <button ng-show="j.IsActive == null" class="btn btn-primary" style="margin-left:10px;" ng-click="GroupVideoChat(j.GroupQuestionId,j.IsActive,j.GroupId,$parent.$index+1)" id="videochat" data-toggle="tooltip" data-placement="top" title=" Click here to start a video chat.  You can easily see each other and share your screen.  Upon completion of the session, the video will be added as a comment which can be reviewed by anyone who navigates the question.">
+                                            <span class="fa fa-video-camera" style="margin-right:8px;"></span>  Start VideoChat
+                                        </button>
+                                        <button ng-show="j.IsActive == true" class="btn btn-success" style="margin-left:10px;" ng-click="GroupVideoChat(j.GroupQuestionId,j.IsActive,j.GroupId,$parent.$index+1)" id="videochat" data-toggle="tooltip" data-placement="top" title="The are {{livecount}} people in the video chat right now!  Click here to join them.">
+                                            <!--<span class="fa fa-video-camera" style="margin-right:8px;"></span> Join VideoChat <span style="margin-left:8px;">{{livecount}}</span>-->
+                                            <span class="fa fa-video-camera" style="margin-right:8px;"></span> Join VideoChat({{livecount}})
+
+                                        </button>
+                                        <button ng-show="j.IsActive == false" class="btn btn-primary" style="margin-left:10px;" ng-click="GroupVideoChat(j.GroupQuestionId,j.IsActive,j.GroupId,$parent.$index+1)" id="videochat" data-toggle="tooltip" data-placement="top" title="Click here to start a video chat.  You can easily see each other and share your screen.  Upon completion of the session, the video will be added as a comment which can be reviewed by anyone who navigates the question.">
+                                            <span class="fa fa-video-camera" style="margin-right:8px;"></span>  Start VideoChat
+                                        </button>
+
+                                    </div>
+                                </div>
+                                <!--<button data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#myModaladdQuestion" style="float:right;" class="btn btn-primary glyphicon-plus">Ask a New Question</button>-->
+                                <!--<div class="col-md-2">
+                                    <span ng-show="isinuse != true" class="btn btn-primary" ng-click="StartZoom(j.GroupQuestionId);" role="button">Start Zoom</span>
+                                </div>-->
+                                <!--<div class="col-md-2">
+                                    <span ng-show="isinuse == true" class="btn btn-primary" ng-click="JoinZoom(joinurl);" role="button">Join Zoom</span>
+                                </div>-->
+                            </div>
+
+
+                            <div>
+                                <div ng-repeat="c in Questioncomments | filter: querystrquestion" style="border:1px dotted #ccc; margin-top:20px;">
+                                    <div class="row clearfix">
+
+                                        <div class="col-md-1 clearfix">
+                                            <div style="font-size:40px; color:gray; text-align:center; margin-top:10px;">
+                                                <span class='icon-up' data-toggle="tooltip" data-placement="right" title="This answer is useful" ng-click="Contribute(j,c,1,$parent.$index)"></span>
+                                            </div>
+
+                                            <!--<div ng-repeat="d in contributerscount">
+                                                <div style="font-size:24px; color:gray; text-align:center" ng-show="c.GroupQuestionCommentId == d.commentid">
+                                                    {{d.totallikes - d.dislikes}}
+                                                </div>
+                                            </div>-->
+
+
+                                            <div>
+                                                <div style="font-size:24px; color:gray; text-align:center">
+                                                    {{c.totallikes - c.dislikes}}
+                                                </div>
+                                            </div>
+                                            <div style="font-size:40px; color:gray; text-align:center">
+                                                <span class='icon-down' data-toggle="tooltip" data-placement="right" title="This answer is not useful" ng-click="DislikesContribute(j,c,0,$parent.$index)"></span>
+                                            </div>
+                                            <span ng-repeat="k in contributerscount">
+                                                <span ng-show="c.GroupQuestionCommentId == k.commentid" style="font-size:xx-large; color:green; text-align:center">
+                                                    <span ng-show="k.Difference > 1" class="fa fa-check"></span>
+                                                </span>
+                                            </span>
+
+                                        </div>
+                                        <div class="col-md-11 clearfix" style="border-left:1px dotted #ccc;">
+
+                                            <div class="row" style="padding:15px;">
+
+                                                <div class="row">
+                                                    <div class="col-md-1">
+                                                        <a>
+                                                            <img class="media-object img-circle" style="width:50px; height:50px;" src="{{c.ProfileImage}}" />
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <b style="vertical-align:middle; margin-top:10px !important">{{c.FirstName}}</b>
+                                                    </div>
+                                                    <div class="col-md-7">
+                                                        <!--<span class="label label-success" style="cursor:pointer;" ng-click="MarkCommentAsAnswer(j,c)" ng-show="c.Status == null"><span class="fa fa-check"></span> Mark as answer</span>
+                                                        <span class="label label-success pull-right" ng-show="c.Status==1"><span class="fa fa-check"></span>  Answer</span>-->
+                                                        <!--<span class="label label-success" style="cursor:pointer;" ng-click="MarkAsCorrectAnswer(j,c)" ng-show="(c.UserID == id || Ismoderator == true) && c.IsCorrectAnswer==null "><span class="fa fa-check"></span> Mark Correct Answer</span>-->
+                                                        <!--<span class="label label-success" ng-show="c.IsCorrectAnswer==true"><span class="fa fa-check"></span>  Answer</span>-->
+                                                        <!--<span class="label label-primary" style="cursor:pointer; margin-left:10px;" ng-click="Contribute(j,c)" ng-show="c.UserID != id"><span class="glyphicon glyphicon-thumbs-up" style="margin-right:8px;"></span>Contribution</span>-->
+                                                        <!--<button data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#myModaladdQuestion" style="float:right;" class="btn btn-primary glyphicon-plus">Ask a New Question</button>-->
+                                                        <!--<span ng-repeat="k in contributerscount">
+                                                            <span ng-show="c.GroupQuestionCommentId == k.commentid">
+                                                                <span class="label label-success" ng-show="k.Difference == 2" style="vertical-align:middle; margin-left:10px; float:right"><span class="fa fa-check"></span>  Answer</span>
+                                                                <span class="label label-success" ng-show="k.Difference == 1" style="vertical-align:middle; margin-left:10px;float:right"><span class="fa fa-check"></span>  Not answer</span>
+                                                            </span>
+                                                        </span>-->
+                                                        <span class="label label-info" style="vertical-align:middle; margin-left:10px;margin-right:10px;float:right">{{c.Updated | fromNow}}</span>
+                                                        <span class="label label-warning" ng-show="c.UserID == id" style="cursor:pointer; margin-left:10px; float:right" data-toggle="modal" data-backdrop="static" data-keyboard="false" ng-click="EditQuestionComment(c)" data-target="#CBChatSummary"><span class="fa fa-edit"> Edit</span></span>
+                                                    </div>
+
+                                                </div>
+                                                <div style="padding:15px; word-break:break-word; margin-left:10px;">
+
+                                                    <div>
+                                                        <label ng-bind-html="c.CommentText"></label>
+                                                        <a ng-show="c.QuestionCommentType == 'QVComment'" ng-click="playArchive(c.ArchiveId);" style="text-decoration: underline; cursor:pointer; font-weight:bold">Link</a>
+                                                    </div>
+
+                                                    <!--<span class="btn btn-info" ng-show="c.Duration != null" ng-click="playArchive(c.ArchiveId);" style="float:right;"><span class="glyphicon glyphicon-play"></span> Play</span>-->
+
+                                                </div>
+
+
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div style="margin-top:20px;">
+                                <!--<label>Chat History</label>-->
+                                <div data-ng-repeat="chat in chatinfo">
+                                    <div>{{chat.UserName}}</div>
+                                    <div ng-bind-html="chat.CommentText"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+                <!--<div data-ng-repeat="c in Questioncomments">
+                    <div class="row" style="border-top:1px dotted #ccc; padding:5px;">
+                        <div class="col-md-1">
+                            <a>
+                                <img class="media-object img-circle img80_80" src="{{profile}}" />
+                            </a>
+                        </div>
+                        <div class="col-md-7">
+                            <h5>{{c.UserName | uppercase}}</h5>
+                            <div ng-bind-html="c.CommentText"></div>
+                        </div>
+
+                        <div class="col-md-3 clearfix">
+
+                            <div class="col-md-2">
+                                <button class="btn btn-success" ng-click="MarkCommentAsAnswer(j,c)" ng-show="c.Status == 0"><span class="fa fa-check"></span> Mark as answer</button>
+                                <span class="label label-success pull-right" ng-show="c.Status==1"><span class="fa fa-check"></span>  Answer</span>
+                            </div>
+                            <div class="col-md-1 col-md-offset-4">
+                                <button class="btn btn-warning" data-toggle="modal" ng-click="EditQuestionComment(c)" data-target="#Summary">Edit</button>
+                            </div>
+                            <div class="col-md-1 col-md-offset-2">
+                                <span class="label label-info" style="vertical-align:middle;">{{c.CreatedDt | fromNow}}</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>-->
+            </div>
+
+            <div style="border-bottom:1.3px solid #d6d6d6;"></div>
+        </div>
+    </div>
+
+
+    <div ng-show="ProjectStepSpin" class="col-md-12 col-md-offset-5">
+        <span class="label label-primary " style="background-color:#176698;color:white; font-size:15px;padding:12px;">
+            <img src="/app/images/loading.gif" height="20" style="padding:0px;">
+            <span class="hidden-xs">please wait ...</span>
+        </span>
+    </div>
+
+    <!--<div ng-show="paging" align="center" style="margin-bottom:10px;">
+        <button class="btn btn-success" ng-disabled="currentPage == 0" ng-click="currentPage=currentPage-1">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        {{currentPage+1}}/{{discussions.length/pageSize | round:'':'up'}}
+        <button class="btn btn-success" ng-disabled="currentPage >= discussions.length/pageSize - 1" ng-click="currentPage=currentPage+1">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </button>
+    </div>-->
+</div>
+
+<style>
+    .container {
+        width: auto;
+        height: auto;
+    }
+
+        /* resize images */
+        .container img {
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+    .Blink {
+        animation: 2s blink ease infinite;
+    }
+
+    @-webkit-keyframes blink {
+        from, to {
+            opacity: 0;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .icon-up:before {
+        content: "\25B2";
+    }
+
+    .icon-down:before {
+        content: "\25BC";
+    }
+</style>
